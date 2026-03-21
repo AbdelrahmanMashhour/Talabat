@@ -17,6 +17,10 @@ namespace Talabat.API.Controllers
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             var results = await _productsRepo.GetAllAsync();
+            if(results == null || !results.Any())
+            {
+                return NotFound("No products found.");
+            }
             return Ok(results);
         }
         [HttpGet("{id}")]
