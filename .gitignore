@@ -1,0 +1,46 @@
+# Build folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+
+# Publish output
+publish/
+
+# NuGet
+*.nupkg
+packages/
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# EF Core migrations snapshot (optional)
+*.Designer.cs
+
+# Secrets
+appsettings.Development.json
+appsettings.*.json
