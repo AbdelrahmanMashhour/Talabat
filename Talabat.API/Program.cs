@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Talabat.API.DTOs.Helpers;
 using Talabat.Core.Repositories.Contracts;
 using Talabat.Repository;
 using Talabat.Repository.Data;
@@ -14,6 +15,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(option=>option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+//builder.Services.AddAutoMapper(m=>m.AddProfile(new MappingProfile));
 
 #region Ask CLR To Create Object Explicitly
 var app = builder.Build();
