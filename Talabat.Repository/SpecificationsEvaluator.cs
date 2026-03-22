@@ -12,7 +12,7 @@ namespace Talabat.Repository
 
             if (specifications.Criteria is not null) //p => p.Id == id
             {
-                query.Where(specifications.Criteria);
+                query = query.Where(specifications.Criteria);
             }
             //query = query.Set<T>().Where(p=>p.Id==id);
 
