@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Talabat.API.DTOs.Respons;
+using Talabat.API.Errors;
 using Talabat.Core.Entities;
 using Talabat.Core.Product_Specs;
 using Talabat.Core.Repositories.Contracts;
@@ -35,8 +36,23 @@ namespace Talabat.API.Controllers
         {
             var spec = new ProductWithBrandAndCategorySpecifications(id);
             var result = await _productsRepo.GetWithSpecAsync(spec);
-            if (result == null) return NotFound();
+            if (result == null)
+                return NotFound(new ApiResponse(404));
             return Ok(_mapper.Map<Product, ProductResponseDTO>(result));
+        }
+
+        [HttpGet("server-error")]
+        public ActionResult ServerError()
+        {
+            string name = null;
+            var res = name.ToString();
+            return Ok(res);
+        }
+        ///send string instead of int to cause model validation error and test the custom bad request response
+        [HttpGet("bad-request")]
+        public ActionResult BadRequest(int id)
+        {
+            return BadRequest("bad");
         }
     }
 }
