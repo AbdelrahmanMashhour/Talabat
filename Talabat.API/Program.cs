@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Talabat.API.DTOs.Helpers;
 using Talabat.API.Errors;
+using Talabat.API.Extensions;
 using Talabat.API.Middlewares;
 using Talabat.Core.Repositories.Contracts;
 using Talabat.Repository;
@@ -13,30 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerServices();
 
 builder.Services.AddDbContext<AppDbContext>(option=>option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<ExceptionMiddleware>();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-//builder.Services.AddAutoMapper(m=>m.AddProfile(new MappingProfile));
-#region Configuration Of BadRequest Response (this if found validation request error)
-    builder.Services.Configure<ApiBehaviorOptions>(option =>
-    {
-        option.InvalidModelStateResponseFactory = (ActionContext context) =>
-        {
-            var errors = context.ModelState.Where(e => e.Value.Errors.Count > 0)
-                .SelectMany(x => x.Value.Errors)
-                .Select(x => x.ErrorMessage).ToArray();
-            var errorResponse = new ApiValidationErrorResponse
-            {
-                Errors = errors
-            };
-            return new BadRequestObjectResult(errorResponse);
-        };
-    });
-#endregion
+
+builder.Services.AddApplicationServices();
 
 #region Ask CLR To Create Object Explicitly
     var app = builder.Build();
@@ -46,20 +28,20 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
         await _dbContext.Database.MigrateAsync();
         await StoreContextSeed.SeedAsync(_dbContext);
 #endregion
+
+
 // Add the custom exception handling middleware to the pipeline
 app.UseMiddleware<ExceptionMiddleware>();
 
 // Handle status code pages (like 404) by redirecting to a custom error page
 app.UseStatusCodePagesWithRedirects("/errors/{0}");
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwaggerServices();
+
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
-//
+
 app.UseAuthorization();
 
 app.MapControllers();
