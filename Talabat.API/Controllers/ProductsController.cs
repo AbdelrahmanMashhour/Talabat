@@ -48,11 +48,11 @@ namespace Talabat.API.Controllers
             var res = name.ToString();
             return Ok(res);
         }
-
+        ///send string instead of int to cause model validation error and test the custom bad request response
         [HttpGet("bad-request")]
         public ActionResult BadRequest(int id)
         {
-            return Ok();
+            return BadRequest("bad");
         }
     }
 }
