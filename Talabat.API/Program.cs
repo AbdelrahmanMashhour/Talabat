@@ -46,7 +46,11 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
         await _dbContext.Database.MigrateAsync();
         await StoreContextSeed.SeedAsync(_dbContext);
 #endregion
+// Add the custom exception handling middleware to the pipeline
 app.UseMiddleware<ExceptionMiddleware>();
+
+// Handle status code pages (like 404) by redirecting to a custom error page
+app.UseStatusCodePagesWithRedirects("/errors/{0}");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
