@@ -48,5 +48,11 @@ namespace Talabat.API.Controllers
             var res = name.ToString();
             return Ok(res);
         }
+
+        [HttpGet("bad-request")]
+        public ActionResult BadRequest(int id)
+        {
+            return Ok();
+        }
     }
 }

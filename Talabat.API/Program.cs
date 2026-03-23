@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Talabat.API.DTOs.Helpers;
+using Talabat.API.Errors;
 using Talabat.Core.Repositories.Contracts;
 using Talabat.Repository;
 using Talabat.Repository.Data;
@@ -18,6 +20,22 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 //builder.Services.AddAutoMapper(m=>m.AddProfile(new MappingProfile));
+#region Configuration Of BadRequest Response (this if found validation request error)
+    builder.Services.Configure<ApiBehaviorOptions>(option =>
+    {
+        option.InvalidModelStateResponseFactory = (ActionContext context) =>
+        {
+            var errors = context.ModelState.Where(e => e.Value.Errors.Count > 0)
+                .SelectMany(x => x.Value.Errors)
+                .Select(x => x.ErrorMessage).ToArray();
+            var errorResponse = new ApiValidationErrorResponse
+            {
+                Errors = errors
+            };
+            return new BadRequestObjectResult(errorResponse);
+        };
+    });
+#endregion
 
 #region Ask CLR To Create Object Explicitly
 var app = builder.Build();
