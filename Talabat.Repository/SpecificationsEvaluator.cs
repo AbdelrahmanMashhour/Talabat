@@ -16,8 +16,17 @@ namespace Talabat.Repository
             }
             //query = query.Set<T>().Where(p=>p.Id==id);
 
+            if (specifications.OrderBy is not null)
+            {
+                query = query.OrderBy(specifications.OrderBy);
+            }
 
-            query=specifications.Includes.Aggregate(query,(currentQuery,includeExpression) => currentQuery.Include(includeExpression));
+            if (specifications.OrderByDesc is not null)
+            {
+                query = query.OrderByDescending(specifications.OrderByDesc);
+            }
+
+            query =specifications.Includes.Aggregate(query,(currentQuery,includeExpression) => currentQuery.Include(includeExpression));
 
             /*
             var names = new[] { "Ahmed", "Nasr", "Eldine" };
