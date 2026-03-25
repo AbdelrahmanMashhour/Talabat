@@ -13,23 +13,27 @@ namespace Talabat.API.Controllers
     public class ProductsController : BaseApiController
     {
         private readonly IGenericRepository<Product> _productsRepo;
+        private readonly IGenericRepository<ProductBrand> _brandsRepository;
+        private readonly IGenericRepository<ProductCategory> _categoriesRepository;
         private readonly IMapper _mapper;
 
-        public ProductsController(IGenericRepository<Product> productsRepo, IMapper mapper)
+        public ProductsController(IGenericRepository<Product> productsRepo, IMapper mapper, IGenericRepository<ProductBrand> brandsRepository, IGenericRepository<ProductCategory> categoriesRepository)
         {
             _productsRepo = productsRepo;
             _mapper = mapper;
+            _brandsRepository = brandsRepository;
+            _categoriesRepository = categoriesRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery]ProductSpecParams productParam)
         {
-            var spec = new ProductWithBrandAndCategorySpecifications();
+            var spec = new ProductWithBrandAndCategorySpecifications(productParam);
             var results = await _productsRepo.GetAllWithSpecAsync(spec);
 
-            if(results == null || !results.Any())
+            if (results == null || !results.Any())
                 return NotFound("No products found.");
-            return Ok(_mapper.Map<IEnumerable<Product>,IEnumerable<ProductResponseDTO>>(results));
+            return Ok(_mapper.Map<IEnumerable<Product>, IEnumerable<ProductResponseDTO>>(results));
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
@@ -40,19 +44,22 @@ namespace Talabat.API.Controllers
                 return NotFound(new ApiResponse(404));
             return Ok(_mapper.Map<Product, ProductResponseDTO>(result));
         }
-
-        [HttpGet("server-error")]
-        public ActionResult ServerError()
+        [HttpGet("brands")]
+        public async Task<ActionResult<IEnumerable<ProductBrand>>> GetProductBrands()
         {
-            string name = null;
-            var res = name.ToString();
-            return Ok(res);
+            var brands = await _brandsRepository.GetAllAsync();
+            if (brands == null || !brands.Any())
+                return NotFound("No brands found.");
+            return Ok(brands);
         }
-        ///send string instead of int to cause model validation error and test the custom bad request response
-        [HttpGet("bad-request")]
-        public ActionResult BadRequest(int id)
+
+        [HttpGet("categories")]
+        public async Task<ActionResult<IEnumerable<ProductCategory>>> GetProductCategories()
         {
-            return BadRequest("bad");
+            var categories = await _categoriesRepository.GetAllAsync();
+            if (categories == null || !categories.Any())
+                return NotFound("No categories found.");
+            return Ok(categories);
         }
     }
 }
