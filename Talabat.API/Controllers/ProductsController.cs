@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Talabat.API.DTOs.Helpers;
 using Talabat.API.DTOs.Respons;
 using Talabat.API.Errors;
 using Talabat.Core.Entities;
@@ -26,14 +27,17 @@ namespace Talabat.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery]ProductSpecParams productParam)
+        public async Task<ActionResult<Pagination<ProductResponseDTO>>> GetProducts([FromQuery]ProductSpecParams productParam)
         {
             var spec = new ProductWithBrandAndCategorySpecifications(productParam);
             var results = await _productsRepo.GetAllWithSpecAsync(spec);
 
             if (results == null || !results.Any())
                 return NotFound("No products found.");
-            return Ok(_mapper.Map<IEnumerable<Product>, IEnumerable<ProductResponseDTO>>(results));
+            var data= _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductResponseDTO>>(results);
+
+            var count= await _productsRepo.GetCountAsync(new ProductWithFiltersForCountSpecifications(productParam));
+            return Ok(new Pagination<ProductResponseDTO>(productParam.PageIndex,productParam.PageSize,count,data));
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
