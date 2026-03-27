@@ -7,6 +7,7 @@ namespace Talabat.Core.Product_Specs
     {
         public ProductWithFiltersForCountSpecifications(ProductSpecParams productParams)
             : base(p =>
+                (string.IsNullOrEmpty(productParams.Search) || p.Name.Contains(productParams.Search)) &&
                 (!productParams.BrandId.HasValue || p.BrandId == productParams.BrandId) &&
                 (!productParams.CategoryId.HasValue || p.CategoryId == productParams.CategoryId))
         { }

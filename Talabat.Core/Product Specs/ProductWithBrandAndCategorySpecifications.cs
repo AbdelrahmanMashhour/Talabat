@@ -11,6 +11,7 @@ namespace Talabat.Core.Product_Specs
     public class ProductWithBrandAndCategorySpecifications : BaseSpecifications<Product>
     {
         public ProductWithBrandAndCategorySpecifications(ProductSpecParams productParam) :base(p=>
+                        (string.IsNullOrEmpty(productParam.Search) || p.Name.Contains(productParam.Search)) &&
                         (!productParam.BrandId.HasValue || p.BrandId == productParam.BrandId) &&
                         (!productParam.CategoryId.HasValue || p.CategoryId == productParam.CategoryId)
         )
