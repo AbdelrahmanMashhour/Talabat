@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using Talabat.API.DTOs.Helpers;
 using Talabat.API.Errors;
 using Talabat.API.Extensions;
@@ -19,9 +20,13 @@ builder.Services.AddSwaggerServices();
 builder.Services.AddDbContext<AppDbContext>(option=>option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddApplicationServices();
+builder.Services.AddSingleton<IConnectionMultiplexer>((ServiceProvider) =>
+{
+    return ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis"));
+});
 
 #region Ask CLR To Create Object Explicitly
-    var app = builder.Build();
+var app = builder.Build();
         var scope = app.Services.CreateScope();
         var serviceProvider = scope.ServiceProvider;
         var _dbContext = serviceProvider.GetRequiredService<AppDbContext>();
